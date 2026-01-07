@@ -2,14 +2,16 @@ import Producto from "./Producto"
 
 function ListaProductos({ productos, onAgregarAlCarrito }) {
   return (
-    <ul>
+    <ul className="row g-3 list-unstyled">
       {productos.map((producto) => (
+        <div key={producto.id} className="col-12 col-md-6 col-lg-4">
         <Producto
           key={producto.id}
           nombre={producto.nombre}
           precio={producto.precio}
           onAgregar={() => onAgregarAlCarrito(producto)}
         />
+      </div>
       ))}
     </ul>
   )

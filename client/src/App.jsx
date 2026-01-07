@@ -92,30 +92,42 @@ useEffect(() => {
           />
         </section>
 
-        <aside className="panel">
-          <div className="cartHeader">
-            <h2>Carrito</h2>
-            <button onClick={vaciarCarrito} disabled={carrito.length === 0}>
-                Vaciar Carrito
+        <aside className="card">
+          <div className="card-body">
+          <div className="cartHeader d-flex justify-content-between align-items-center mb-3">
+            <h2 className="m-0">Carrito</h2>
+            <button 
+              className="btn btn-outline-danger btn-sm"
+              onClick={vaciarCarrito} disabled={carrito.length === 0}>
+              Vaciar Carrito
             </button>
           </div>
 
           <ul className="cartList">
             {carrito.map((p) => (
-              <li key={p.id} className="cartItem">
-                <div className="cartInfo">
+              <li key={p.id} className="card mb-2">
+                <div className="card-body p-2">
+                <div className="d-flex justify-content-between align-items-center mb-2">
                   <span className="cartName">{p.nombre}</span>
                   <span className="cartQty">x {p.cantidad}</span>
                 </div>
 
-                <div className="cartActions">
-                  <button onClick={() => restarDelCarrito(p)}>-</button>{" "}
-                  <button onClick={() => onAgregarAlCarrito(p)}>+</button>{" "}
-                  <button onClick={() => eliminarProducto(p)}>Eliminar</button>
+                <div className="d-flex gap-2 flex-wrap">
+                  <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => restarDelCarrito(p)}>-</button>{" "}
+                  <button 
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => onAgregarAlCarrito(p)}>+</button>{" "}
+                  <button 
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => eliminarProducto(p)}>Eliminar</button>
+                </div>
                 </div>
               </li>
             ))}
           </ul>
+          </div>
         </aside>
       </main>
     </div>
