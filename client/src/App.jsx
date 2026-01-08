@@ -67,6 +67,20 @@ useEffect(() => {
     localStorage.setItem("carrito", JSON.stringify(carrito))
 }, [carrito])
 
+useEffect(() => {
+  async function cargarProductos() {
+    try {
+      const res = await fetch("/api/productos");
+      const data = await res.json();
+      setProductos(data);
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+    }
+  }
+
+  cargarProductos();
+}, []);
+
   return (
     <div className="app">
       <header className="header">
