@@ -6,9 +6,7 @@ function ListaProductos({ productos, onAgregarAlCarrito }) {
       {productos.map((producto) => (
         <div key={producto.id} className="col-12 col-md-6 col-lg-4">
         <Producto
-          key={producto.id}
-          nombre={producto.nombre}
-          precio={producto.precio}
+          producto={producto}
           onAgregar={() => onAgregarAlCarrito(producto)}
         />
       </div>
