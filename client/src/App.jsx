@@ -11,8 +11,32 @@ function App() {
     return guardado ? JSON.parse(guardado) : []
   });
 
+  const [textoBusqueda, setTextoBusqueda] = useState("");
+
   const [cargando, setCargando] = useState(true);
+
   const [errorProductos, setErrorProductos] = useState(null);
+
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");  
+
+  const productosFiltrados = productos
+  //1. Filtro por categoría
+    .filter((p) =>
+      categoriaSeleccionada === "todas"
+    ? true
+    :p.categoria === categoriaSeleccionada
+    )
+//2.Filtro por búsqueda (nombre)
+
+    .filter((p) =>
+      p.nombre.toLowerCase().includes(textoBusqueda.toLowerCase().trim())
+    );
+
+    categoriaSeleccionada === "todas"
+    ? productos
+    :productos.filter(p => p.categoria === categoriaSeleccionada);
+   
+  const categorias = ["todas", ...new Set(productos.map(p => p.categoria))];
 
 
   function onAgregarAlCarrito(producto) {
@@ -152,6 +176,32 @@ function App() {
         </div>
       </header>
 
+      <div className="mb-3">
+        <label className="form-label">Filtrar por categoría</label>
+        <select
+          className="form-select"
+          value={categoriaSeleccionada}
+          onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+        >
+          {categorias.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="row g-2 mb-3">
+          <label className="form-label">Buscar por nombre</label>
+          <input 
+            className="form-control"
+            type="text"
+            placeholder="Ejemplo: Pulsera, collar, aros..."
+            value={textoBusqueda}
+            onChange={(e) => setTextoBusqueda(e.target.value)}
+            />
+        </div>
+
       <main className="layout">
         <section className="panel">
           <h2>Catálogo</h2>
@@ -164,9 +214,13 @@ function App() {
             </div>
           )}
 
+          {!cargando && !errorProductos && productosFiltrados.length === 0 && (
+            <p className="text-muted">No hay productos que coincidan con tu búsqueda.</p>
+          )}
+
           {!cargando && !errorProductos && (
             <ListaProductos 
-            productos={productos}
+            productos={productosFiltrados}
             onAgregarAlCarrito={onAgregarAlCarrito}
             />
           )}
