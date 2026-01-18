@@ -74,7 +74,7 @@ app.post("/api/checkout", (req, res) =>{
     const { items, total } = req.body;
 
     //validar presencia
-    if (!items, Array.isArray(items) || items.length === 0){
+    if (!items || Array.isArray(items) || items.length === 0){
         return res.status(400).json({
             error: "el carrito debe tener al menos un item"
         });

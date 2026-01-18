@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import ListaProductos from "./components/ListaProductos"
 import "./App.css"
+import Navbar from "./components/Navbar";
+import OffCanvasCarrito from "./components/OffCanvasCarrito";
 
 function App() {
   const [productos, setProductos] = useState([]);
@@ -11,13 +13,17 @@ function App() {
     return guardado ? JSON.parse(guardado) : []
   });
 
-  const [textoBusqueda, setTextoBusqueda] = useState("");
-
   const [cargando, setCargando] = useState(true);
 
   const [errorProductos, setErrorProductos] = useState(null);
 
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");  
+
+  const [busqueda, setBusqueda] = useState("");
+
+  const totalItems = carrito.reduce((acc, p) => acc + p.cantidad,0);
+
+  const texto = busqueda.trim().toLowerCase();
 
   const productosFiltrados = productos
   //1. Filtro por categoría
@@ -26,17 +32,14 @@ function App() {
     ? true
     :p.categoria === categoriaSeleccionada
     )
-//2.Filtro por búsqueda (nombre)
+
+    //2.Filtro por búsqueda (nombre)
 
     .filter((p) =>
-      p.nombre.toLowerCase().includes(textoBusqueda.toLowerCase().trim())
+      p.nombre.toLowerCase().includes(texto)
     );
 
-    categoriaSeleccionada === "todas"
-    ? productos
-    :productos.filter(p => p.categoria === categoriaSeleccionada);
-   
-  const categorias = ["todas", ...new Set(productos.map(p => p.categoria))];
+  const categorias = ["todas", ...new Set(productos.map(p => p.categoria).filter(Boolean))];
 
 
   function onAgregarAlCarrito(producto) {
@@ -161,11 +164,18 @@ function App() {
     }, []);
 
     return (
+
     <div className="app">
       <header className="header">
         <h1 className="Title">Tienda de Aura</h1>
 
-        <div className="summary">
+      <Navbar
+        totalItems={totalItems}
+        busqueda={busqueda}
+        setBusqueda={setBusqueda}
+      />
+
+        {/*<div className="summary">
           <p><strong>Carrito:</strong>{" "}
             {carrito.reduce((total, p) => total + p.cantidad, 0)} productos
           </p>
@@ -173,7 +183,7 @@ function App() {
             <strong>Total:</strong>{" "}
             ${totalCarrito.toLocaleString("es-CL")}
           </p>
-        </div>
+        </div>*/}
       </header>
 
       <div className="mb-3">
@@ -197,8 +207,8 @@ function App() {
             className="form-control"
             type="text"
             placeholder="Ejemplo: Pulsera, collar, aros..."
-            value={textoBusqueda}
-            onChange={(e) => setTextoBusqueda(e.target.value)}
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
             />
         </div>
 
@@ -282,14 +292,19 @@ function App() {
                 </div>
               )}
             </div>
-
+              <OffCanvasCarrito
+              carrito={carrito}
+              totalCarrito={totalCarrito}
+              onAgregar={onAgregarAlCarrito}
+              onRestar={restarDelCarrito}
+              onEliminar={eliminarProducto}
+              onVaciar={vaciarCarrito}
+                />
           </div>
         </aside>
       </main>
     </div>
   )
 }
-
-
 
 export default App
