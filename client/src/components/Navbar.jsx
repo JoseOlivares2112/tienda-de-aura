@@ -22,6 +22,7 @@ function Navbar({ totalItems, busqueda, setBusqueda }) {
                 type="button" 
                 data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasCarrito"
+                aria-controls="offcanvasCarrito"
                 >
                     🛒
                     <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">

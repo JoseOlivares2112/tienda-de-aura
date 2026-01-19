@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import ListaProductos from "./components/ListaProductos"
 import "./App.css"
 import Navbar from "./components/Navbar";
-import OffCanvasCarrito from "./components/OffCanvasCarrito";
+import OffCanvasCarrito from "./components/OffCanvasCarrito"
 
 function App() {
   const [productos, setProductos] = useState([]);
@@ -292,17 +292,17 @@ function App() {
                 </div>
               )}
             </div>
-              <OffCanvasCarrito
-              carrito={carrito}
-              totalCarrito={totalCarrito}
-              onAgregar={onAgregarAlCarrito}
-              onRestar={restarDelCarrito}
-              onEliminar={eliminarProducto}
-              onVaciar={vaciarCarrito}
-                />
           </div>
         </aside>
       </main>
+      <OffCanvasCarrito
+        carrito={carrito}
+        totalCarrito={totalCarrito}
+        onAgregar={onAgregarAlCarrito}
+        onRestar={restarDelCarrito}
+        onEliminar={eliminarProducto}
+        onVaciar={vaciarCarrito}
+      />
     </div>
   )
 }

@@ -10,11 +10,11 @@ function OffCanvasCarrito({
         <div 
             className="offcanvas offcanvas-end"
             tabIndex="-1"
-            id="offCanvasCarrito"
-            aria-labelledby="offCanvasCarritoLabel"
+            id="offcanvasCarrito"
+            aria-labelledby="offcanvasCarritoLabel"
         >
             <div className="offcanvas-header">
-                <h5 id="offCanvasCarritoLabel">🛒 Tu carrito</h5>
+                <h5 id="offcanvasCarritoLabel">🛒 Tu carrito</h5>
                 <button
                     type="button"
                     className="btn-close"
