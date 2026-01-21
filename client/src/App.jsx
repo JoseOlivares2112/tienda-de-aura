@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import ListaProductos from "./components/ListaProductos"
 import "./App.css"
 import Navbar from "./components/Navbar";
 import OffCanvasCarrito from "./components/OffCanvasCarrito"
+
 
 function App() {
   const [productos, setProductos] = useState([]);
@@ -21,23 +22,52 @@ function App() {
 
   const [busqueda, setBusqueda] = useState("");
 
+  const [orden, setOrden] =useState("relevancia");
+
+  const [toast, setToast] = useState(null);
+  // toast = {texto, tipo}
+
   const totalItems = carrito.reduce((acc, p) => acc + p.cantidad,0);
 
   const texto = busqueda.trim().toLowerCase();
 
-  const productosFiltrados = productos
-  //1. Filtro por categoría
-    .filter((p) =>
-      categoriaSeleccionada === "todas"
-    ? true
-    :p.categoria === categoriaSeleccionada
-    )
+
+ function mostrarToast(texto, tipo = "ok") {
+    setToast({ texto, tipo });
+
+    // Lo ocultamos después de 1.8 segundos 
+    setTimeout(() => {
+      setToast(null);
+    }, 1800);
+  }
+
+  const productosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase();
+
+    //1. Filtro por categoría
+    let lista = productos
+      .filter((p) =>
+        categoriaSeleccionada === "todas"
+        ? true
+        :p.categoria === categoriaSeleccionada
+      )
 
     //2.Filtro por búsqueda (nombre)
 
-    .filter((p) =>
-      p.nombre.toLowerCase().includes(texto)
-    );
+      .filter((p) =>
+       p.nombre.toLowerCase().includes(texto)
+      );
+
+    //3.Orden
+
+    const copia = [...lista];
+
+    if (orden === "precio-asc") copia.sort((a, b) => Number(a.precio) - Number(b.precio))
+    if (orden === "precio-desc") copia.sort((a, b) => Number(b.precio) - Number(a.precio))
+    if (orden === "nombre-asc") copia.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+
+    return copia;
+  }, [productos, categoriaSeleccionada, busqueda, orden]);
 
   const categorias = ["todas", ...new Set(productos.map(p => p.categoria).filter(Boolean))];
 
@@ -54,22 +84,23 @@ function App() {
         )
       }
       return [...prev, { ...producto, cantidad: 1 }]
-    })
+    });
+    mostrarToast(`Agregado: ${producto.nombre}`)
   }
 
   function restarDelCarrito(producto) {
-  setCarrito((prev) =>{
-    const existente = prev.find((p)=> p.id === producto.id)
+    setCarrito((prev) =>{
+      const existente = prev.find((p)=> p.id === producto.id)
 
-    // si no existe, no hacemos nada
-    if(!existente) return prev
+      // si no existe, no hacemos nada
+      if(!existente) return prev
 
-    // si hay mas de 1 restamos 1 
+      // si hay mas de 1 restamos 1 
 
-  if (existente.cantidad > 1) {
-    return prev.map((p) => 
-    p.id === producto.id ? { ...p, cantidad: p.cantidad - 1} : p
-    )
+      if (existente.cantidad > 1) {
+        return prev.map((p) => 
+        p.id === producto.id ? { ...p, cantidad: p.cantidad - 1} : p
+      )
   }
 
   // si cantidad es 1, al restar se elimina completamente
@@ -90,6 +121,7 @@ function App() {
   setCarrito([])
   localStorage.removeItem("carrito")
   }
+
 
   async function finalizarCompra() {
     try {
@@ -165,7 +197,7 @@ function App() {
 
     return (
 
-    <div className="app">
+      <div className="app">
       <header className="header">
         <h1 className="Title">Tienda de Aura</h1>
 
@@ -186,22 +218,26 @@ function App() {
         </div>*/}
       </header>
 
-      <div className="mb-3">
-        <label className="form-label">Filtrar por categoría</label>
-        <select
-          className="form-select"
-          value={categoriaSeleccionada}
-          onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-        >
+      <div className="row g-3 mb-4">
+        {/* Filtro por categoría */}
+        <div className="col-12 col-md-4">
+          <label className="form-label">Filtrar por categoría</label>
+          <select
+            className="form-select"
+            value={categoriaSeleccionada}
+            onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+          >
           {categorias.map((cat) => (
             <option key={cat} value={cat}>
               {cat}
             </option>
           ))}
-        </select>
-      </div>
+           </select>
+        </div>
+      
 
-      <div className="row g-2 mb-3">
+        {/* Buscar por nombre */}
+        <div className="col-12 col-md-4">
           <label className="form-label">Buscar por nombre</label>
           <input 
             className="form-control"
@@ -211,6 +247,23 @@ function App() {
             onChange={(e) => setBusqueda(e.target.value)}
             />
         </div>
+
+         {/* Ordenar */}
+        <div className="col-12 col-md-4">
+          <label className="form-label">Ordenar</label>
+          <select 
+            className="form-select" 
+            value={orden}
+            onChange={(e) => setOrden(e.target.value)}
+          >
+            <option value="relevancia">Relevancia</option>
+            <option value="precio-asc">Precio: De menor a mayor</option>
+            <option value="precio-desc">Precio: De mayor a menor</option>
+            <option value="nombre-asc">Nombre: De A → z</option>
+            
+          </select>
+        </div>
+      </div>
 
       <main className="layout">
         <section className="panel">
@@ -303,8 +356,37 @@ function App() {
         onEliminar={eliminarProducto}
         onVaciar={vaciarCarrito}
       />
-    </div>
-  )
-}
 
-export default App
+      {toast && (
+         <div 
+          className="toast-container position-fixed bottom-0 end-0 p-3"
+          style={{ zIndex : 9999 }}
+        >
+         <div className={`toast show align-items-center text-bg-${
+            toast.tipo === "ok" ? "dark" : "danger"
+            } border-0`}
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+
+         <div className="d-flex">
+          <div className="toast-body">
+              {toast.texto}
+          </div>
+
+          <button 
+            type="button"
+            className="btn-close btn-close-white me-2 m-auto"
+            aria-label="Close"
+            onClick={() => setToast(null)}
+          />
+        </div>
+      </div>
+    </div>  
+  )}
+</div>
+    
+)};
+
+export default App;
